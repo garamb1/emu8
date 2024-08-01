@@ -1,5 +1,5 @@
 //
-//  emu8App.swift
+//  Emu8App.swift
 //  emu8
 //
 //  Created by Vincenzo Garambone on 01/08/24.

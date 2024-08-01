@@ -12,5 +12,5 @@ func combineThreeNibbles(first: UInt8, second: UInt8, third: UInt8) -> UInt16 {
 }
 
 func combineTwoNibbles(first: UInt8, second: UInt8) -> UInt8 {
-    (first << 8) | (second)
+    (first << 8) | second
 }
