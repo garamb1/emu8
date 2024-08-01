@@ -216,5 +216,26 @@ class Chip8 {
     }
 
     // ANNN
-    private func setIndexRegister(x _: UInt8, n1 _: UInt8, n2 _: UInt8) {}
+    private func setIndexRegister(n1: UInt8, n2: UInt8, n3: UInt8) {
+        indexRegister = combineThreeNibbles(first: n1, second: n2, third: n3)
+        programCounter += 2
+    }
+
+    // BNNN
+    private func jumpToPlusRegister0(n1: UInt8, n2: UInt8, n3: UInt8) {
+        programCounter += combineThreeNibbles(first: n1, second: n2, third: n3) + UInt16(registers[0])
+    }
+
+    // CXNN
+    private func setRegisterXToRandomAndNn(x: UInt8, n1: UInt8, n2: UInt8) {
+        let result = UInt8.random(in: 0 ... 255) & combineTwoNibbles(first: n1, second: n2)
+        registers[Int(x)] = result
+        programCounter += 2
+    }
+
+    // DXYN
+    private func drawSprite(x _: UInt8, y _: UInt8, height _: UInt8) {
+        // TODO:
+    }
+    
 }
