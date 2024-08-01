@@ -12,6 +12,8 @@
 		0352A9592C5BC8BB00985E3B /* SwiftRadix in Frameworks */ = {isa = PBXBuildFile; productRef = 0352A9582C5BC8BB00985E3B /* SwiftRadix */; };
 		0352A95B2C5BC91F00985E3B /* OpCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352A95A2C5BC91F00985E3B /* OpCode.swift */; };
 		0352A95D2C5BCD2400985E3B /* NibbleUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352A95C2C5BCD2400985E3B /* NibbleUtil.swift */; };
+		0352A95F2C5BDA3200985E3B /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 0352A95E2C5BDA3200985E3B /* README.md */; };
+		0352A9612C5BDA5000985E3B /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 0352A9602C5BDA5000985E3B /* LICENSE */; };
 		039D06182C5B83E2003652D8 /* Emu8App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 039D06172C5B83E2003652D8 /* Emu8App.swift */; };
 		039D061A2C5B83E2003652D8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 039D06192C5B83E2003652D8 /* ContentView.swift */; };
 		039D061C2C5B83E3003652D8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 039D061B2C5B83E3003652D8 /* Assets.xcassets */; };
@@ -23,6 +25,8 @@
 		0352A9552C5B8AF200985E3B /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		0352A95A2C5BC91F00985E3B /* OpCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpCode.swift; sourceTree = "<group>"; };
 		0352A95C2C5BCD2400985E3B /* NibbleUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NibbleUtil.swift; sourceTree = "<group>"; };
+		0352A95E2C5BDA3200985E3B /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		0352A9602C5BDA5000985E3B /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		039D06142C5B83E2003652D8 /* emu8.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = emu8.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		039D06172C5B83E2003652D8 /* Emu8App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Emu8App.swift; sourceTree = "<group>"; };
 		039D06192C5B83E2003652D8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -46,6 +50,8 @@
 		039D060B2C5B83E1003652D8 = {
 			isa = PBXGroup;
 			children = (
+				0352A9602C5BDA5000985E3B /* LICENSE */,
+				0352A95E2C5BDA3200985E3B /* README.md */,
 				039D06162C5B83E2003652D8 /* emu8 */,
 				039D06152C5B83E2003652D8 /* Products */,
 			);
@@ -147,6 +153,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0352A9612C5BDA5000985E3B /* LICENSE in Resources */,
+				0352A95F2C5BDA3200985E3B /* README.md in Resources */,
 				039D061F2C5B83E3003652D8 /* Preview Assets.xcassets in Resources */,
 				039D061C2C5B83E3003652D8 /* Assets.xcassets in Resources */,
 			);
