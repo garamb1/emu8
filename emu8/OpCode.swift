@@ -9,12 +9,12 @@ import Foundation
 import SwiftRadix
 
 struct OpCode {
-    private let operation, first, second, third: UInt8
+    let nibble1, nibble2, nibble3, nibble4: UInt8
 
     init(firstTwo: UInt8, lastTwo: UInt8) {
-        operation = firstTwo.hex.nibble(0).value
-        first = firstTwo.hex.nibble(1).value
-        second = lastTwo.hex.nibble(2).value
-        third = lastTwo.hex.nibble(3).value
+        nibble1 = firstTwo.hex.nibble(0).value
+        nibble2 = firstTwo.hex.nibble(1).value
+        nibble3 = lastTwo.hex.nibble(2).value
+        nibble4 = lastTwo.hex.nibble(3).value
     }
 }

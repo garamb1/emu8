@@ -18,6 +18,7 @@ class Chip8 {
     var programCounter: UInt16 = 0
 
     var screen: [[Bool]] = .init(repeating: [Bool](repeating: false, count: Constants.height), count: Constants.width)
+    var redraw: Bool = false
 
     // Timers, both counting at 60Hz
     var delayTimer: UInt8 = 0
@@ -37,12 +38,15 @@ class Chip8 {
 
         loadFontSet()
         loadRom(rom: rom)
+
+        while true {
+            loop()
+        }
     }
 
     func loop() {
-        let currentOpCode = fetchOpCode()
-
-        executeOpCode()
+        executeOpCode(opCode: fetchOpCode())
+        updateTimers()
     }
 
     private func loadFontSet() {
@@ -64,8 +68,94 @@ class Chip8 {
         return OpCode(firstTwo: memory[Int(programCounter)], lastTwo: memory[Int(programCounter + 1)])
     }
 
-    private func executeOpCode() {
-        // execute the instruction
+    private func executeOpCode(opCode: OpCode) {
+        switch (opCode.nibble1, opCode.nibble2, opCode.nibble3, opCode.nibble4) {
+        case (0x00, 0x00, 0x0E, 0x00):
+            clearScreen()
+        case (0x00, 0x00, 0x0E, 0x00):
+            returnFromSubroutine()
+        case let (0x00, n1, n2, n3):
+            callSubroutine(n1: n1, n2: n2, n3: n3)
+        case let (0x01, n1, n2, n3):
+            jumpToAddress(n1: n1, n2: n2, n3: n3)
+        case let (0x02, n1, n2, n3):
+            callSubroutine(n1: n1, n2: n2, n3: n3)
+        case let (0x03, x, n2, n3):
+            conditionalEqualsSkip(x: x, n1: n2, n2: n3)
+        case let (0x04, x, n1, n2):
+            conditionalNotEqualsSkip(x: x, n1: n1, n2: n2)
+        case let (0x05, x, y, 0x00):
+            conditionalXyEqualsSkip(x: x, y: y)
+        case let (0x06, x, n1, n2):
+            setRegisterToNN(x: x, n1: n1, n2: n2)
+        case let (0x07, x, n1, n2):
+            addNNtoRegisterX(x: x, n1: n1, n2: n2)
+        case let (0x08, x, y, 0x00):
+            setRegisterXToY(x: x, y: y)
+        case let (0x08, x, y, 0x01):
+            setRegisterXToYBitwiseOr(x: x, y: y)
+        case let (0x08, x, y, 0x02):
+            setRegisterXToYBitwiseAnd(x: x, y: y)
+        case let (0x08, x, y, 0x03):
+            setRegisterXToYBitwiseXor(x: x, y: y)
+        case let (0x08, x, y, 0x04):
+            addRegisterYtoXWithOverflow(x: x, y: y)
+        case let (0x08, x, y, 0x05):
+            subtractRegisterYtoXWithOverflow(x: x, y: y)
+        case let (0x08, x, y, 0x06):
+            rightShiftRegisterXAndStoreLeastSignficant(x: x, y: y)
+        case let (0x08, x, y, 0x07):
+            setRegisterXtoYminusXWithOverflow(x: x, y: y)
+        case let (0x08, x, y, 0x0E):
+            leftShiftRegisterXAndStoreLeastSignficant(x: x, y: y)
+        case let (0x09, x, y, 0x00):
+            skipIfRegisterXandYEquals(x: x, y: y)
+        case let (0x0A, n1, n2, n3):
+            setIndexRegister(n1: n1, n2: n2, n3: n3)
+        case let (0x0B, n1, n2, n3):
+            jumpToPlusRegister0(n1: n1, n2: n2, n3: n3)
+        case let (0x0C, x, n1, n2):
+            setRegisterXToRandomAndNn(x: x, n1: n1, n2: n2)
+        case let (0x0D, x, y, height):
+            drawSprite(x: x, y: y, height: height)
+        case let (0x0E, x, 0x09, 0x0E):
+            skipInstructionIfXisPressed(x: x)
+        case let (0x0E, x, 0x0A, 0x01):
+            skipInstructionIfXisNotPressed(x: x)
+        case let (0x0F, x, 0x00, 0x0A):
+            setRegisterXToDelayTimer(x: x)
+        case let (0x0F, x, 0x00, 0x07):
+            awaitKeyPressAndStore(x: x)
+        case let (0x0F, x, 0x00, 0x0A):
+            setDelayTimerToRegisterX(x: x)
+        case let (0x0F, x, 0x01, 0x05):
+            setSoundTimerToRegisterX(x: x)
+        case let (0x0F, x, 0x01, 0x08):
+            addRegisterXtoIndexRegister(x: x)
+        case let (0x0F, x, 0x02, 0x09):
+            setIndexRegisterSpriteLocationFromRegisterX(x: x)
+        case let (0x0F, x, 0x03, 0x03):
+            storeDecimalRepresentationOfAddress(x: x)
+        case let (0x0F, x, 0x05, 0x05):
+            storeIncrementedIndexRegister(x: x)
+        case let (0x0F, x, 0x06, 0x05):
+            fillRegisterFromMemoryAtIndex(x: x)
+        default:
+            print("not implememented")
+        }
+    }
+
+    private func updateTimers() {
+        if delayTimer > 0 {
+            delayTimer -= 1
+        }
+
+        if soundTimer > 0 {
+            if soundTimer == 1 {
+                print("making a sound")
+            }
+            soundTimer = 0
+        }
     }
 
     // 00E0
@@ -234,8 +324,127 @@ class Chip8 {
     }
 
     // DXYN
-    private func drawSprite(x _: UInt8, y _: UInt8, height _: UInt8) {
-        // TODO:
+    private func drawSprite(x: UInt8, y: UInt8, height: UInt8) {
+        // width is constant
+        let drawableWidth = x ... x + 8
+        let drawableHeight = y ... y + height
+
+        for line in drawableHeight {
+            let pixelAddress = memory[Int(indexRegister) + Int(line)]
+
+            for col in drawableWidth {
+                let mask = 0x80 >> line
+                let pixelValue: Bool = (mask & mask) > 0
+                let oldValue = screen[Int(line)][Int(col)]
+
+                if oldValue != pixelValue {
+                    registers[registers.count - 1] = 1
+                }
+
+                screen[Int(line)][Int(col)] = pixelValue
+            }
+        }
+
+        redraw = true
     }
-    
+
+    // EX9E
+    private func skipInstructionIfXisPressed(x: UInt8) {
+        let keyPressedIndex = registers[Int(x)]
+
+        if keyMap[Int(keyPressedIndex)] == true {
+            programCounter += 4
+        } else {
+            programCounter += 2
+        }
+    }
+
+    // EXA1
+    private func skipInstructionIfXisNotPressed(x: UInt8) {
+        let keyPressedIndex = registers[Int(x)]
+
+        if keyMap[Int(keyPressedIndex)] != true {
+            programCounter += 4
+        } else {
+            programCounter += 2
+        }
+    }
+
+    // FX07
+    private func setRegisterXToDelayTimer(x: UInt8) {
+        registers[Int(x)] = delayTimer
+    }
+
+    // FX0A
+    private func awaitKeyPressAndStore(x: UInt8) {
+        var keyPress = false
+
+        for keyIndex in 0 ... keyMap.count {
+            if keyMap[keyIndex] == true {
+                keyPress = true
+                registers[Int(x)] = UInt8(keyIndex)
+            }
+        }
+
+        if !keyPress {
+            return
+        }
+
+        programCounter += 2
+    }
+
+    // FX15
+    private func setDelayTimerToRegisterX(x: UInt8) {
+        delayTimer = registers[Int(x)]
+        programCounter += 2
+    }
+
+    // FX18
+    private func setSoundTimerToRegisterX(x: UInt8) {
+        soundTimer = registers[Int(x)]
+        programCounter += 2
+    }
+
+    // FX1E
+    private func addRegisterXtoIndexRegister(x: UInt8) {
+        indexRegister += UInt16(registers[Int(x)])
+        programCounter += 2
+    }
+
+    // FX29
+    private func setIndexRegisterSpriteLocationFromRegisterX(x: UInt8) {
+        // sprite is always 5 pixels tall
+        let sprite = registers[Int(x)] * 5
+        indexRegister = UInt16(sprite)
+
+        programCounter += 2
+    }
+
+    // FX33
+    private func storeDecimalRepresentationOfAddress(x: UInt8) {
+        let value = registers[Int(x)]
+        memory[Int(indexRegister)] = value / 100
+        memory[Int(indexRegister) + 1] = (value / 10) % 10
+        memory[Int(indexRegister) + 2] = (value / 100) % 10
+
+        programCounter += 2
+    }
+
+    // FX55
+    private func storeIncrementedIndexRegister(x: UInt8) {
+        for memoryIndex in 0 ... x {
+            memory[Int(memoryIndex)] = UInt8(indexRegister) + memoryIndex
+        }
+
+        programCounter += 2
+    }
+
+    // FX65
+    private func fillRegisterFromMemoryAtIndex(x: UInt8) {
+        for memoryIndex in 0 ... x {
+            registers[Int(memoryIndex)] = UInt8(indexRegister) + memoryIndex
+        }
+
+        programCounter += 2
+    }
 }
